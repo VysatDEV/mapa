@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Map Viewer</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- MAPA -->
+
+    <div id="mapArea">
+
+        <div id="mapContainer">
+
+            <img
+                id="map"
+                src="mapa.png"
+                draggable="false"
+                alt="Mapa"
+            >
+
+            <svg id="svg"></svg>
+
+        </div>
+
+    </div>
+
+
+    <!-- PANEL -->
+
+    <aside id="panel">
+
+        <h2>Provincie</h2>
+
+        <div id="provinceName">
+            Vyber provincii
+        </div>
+
+
+        <div id="stats">
+
+            <div class="stat">
+                <span>Obilí</span>
+                <strong id="obili">-</strong>
+            </div>
+
+            <div class="stat">
+                <span>Dřevo</span>
+                <strong id="drevo">-</strong>
+            </div>
+
+            <div class="stat">
+                <span>Železo</span>
+                <strong id="zelezo">-</strong>
+            </div>
+
+            <div class="stat">
+                <span>Tkanina</span>
+                <strong id="tkanina">-</strong>
+            </div>
+
+            <div class="stat">
+                <span>Město</span>
+                <strong id="mesto">-</strong>
+            </div>
+
+            <div class="stat">
+                <span>Terén</span>
+                <strong id="terrain">-</strong>
+            </div>
+
+            <div class="stat">
+                <span>Vlastník</span>
+                <strong id="vlastnik">-</strong>
+            </div>
+
+        </div>
+
+
+        <h3>Budovy</h3>
+
+        <div id="buildings">
+
+            <div>
+                <span>1.</span>
+                <strong id="building1">-</strong>
+            </div>
+
+            <div>
+                <span>2.</span>
+                <strong id="building2">-</strong>
+            </div>
+
+            <div>
+                <span>3.</span>
+                <strong id="building3">-</strong>
+            </div>
+
+            <div>
+                <span>4.</span>
+                <strong id="building4">-</strong>
+            </div>
+
+            <div>
+                <span>5.</span>
+                <strong id="building5">-</strong>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- STATUS -->
+
+    <div id="status">
+        Připojuji se k databázi...
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

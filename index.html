@@ -32,16 +32,33 @@
     </div>
 
 
-    <!-- PANEL -->
+    <!-- POSTRANNÍ PANEL -->
 
     <aside id="panel">
 
-        <h2>Provincie</h2>
+        <button id="closePanel">
+            ×
+        </button>
 
-        <div id="provinceName">
+        <h2 id="provinceName">
             Vyber provincii
+        </h2>
+
+
+        <!-- OBRÁZEK TERÉNU -->
+
+        <div id="terrainImageContainer">
+
+            <img
+                id="terrainImage"
+                src=""
+                alt="Terén"
+            >
+
         </div>
 
+
+        <!-- STATISTIKY -->
 
         <div id="stats">
 
@@ -82,6 +99,8 @@
 
         </div>
 
+
+        <!-- BUDOVY -->
 
         <h3>Budovy</h3>
 
@@ -124,7 +143,11 @@
     </div>
 
 
+    <!-- SUPABASE -->
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- JAVASCRIPT -->
 
     <script src="script.js"></script>
 

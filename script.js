@@ -46,6 +46,15 @@ const svg =
 const status =
     document.getElementById("status");
 
+const panel =
+    document.getElementById("panel");
+
+const closePanel =
+    document.getElementById("closePanel");
+
+const terrainImage =
+    document.getElementById("terrainImage");
+
 
 /* =========================================
    ZOOM / PAN
@@ -135,21 +144,6 @@ async function loadStatistics() {
     statistics = {};
 
 
-    /*
-     * Převod:
-     *
-     * [
-     *   {
-     *      name: "44",
-     *      obili: 100
-     *   }
-     * ]
-     *
-     * na:
-     *
-     * statistics["44"]
-     */
-
     (data || []).forEach(
         function(stats) {
 
@@ -170,7 +164,7 @@ async function loadStatistics() {
 
 
 /* =========================================
-   NAČTENÍ VŠEHO
+   NAČTENÍ DAT
 ========================================= */
 
 async function loadData() {
@@ -196,9 +190,12 @@ async function loadData() {
 
     }
 
-    catch(error) {
+    catch (error) {
 
-        console.error(error);
+        console.error(
+            "Chyba při načítání dat:",
+            error
+        );
 
 
         status.textContent =
@@ -210,7 +207,7 @@ async function loadData() {
 
 
 /* =========================================
-   MAPA
+   NAČTENÍ MAPY
 ========================================= */
 
 map.addEventListener(
@@ -246,7 +243,7 @@ map.addEventListener(
 
 
 /* =========================================
-   CENTER MAP
+   VYSTŘEDĚNÍ MAPY
 ========================================= */
 
 function centerMap() {
@@ -278,7 +275,7 @@ function centerMap() {
 
 
 /* =========================================
-   TRANSFORM
+   TRANSFORMACE
 ========================================= */
 
 function updateTransform() {
@@ -296,7 +293,7 @@ function updateTransform() {
 
 
 /* =========================================
-   PROVINCE POLYGONY
+   VYKRESLENÍ PROVINCIÍ
 ========================================= */
 
 function drawProvinces() {
@@ -427,6 +424,125 @@ function selectProvince(
         province
     );
 
+
+    panel.classList.add(
+        "open"
+    );
+
+}
+
+
+/* =========================================
+   OBRÁZEK TERÉNU
+========================================= */
+
+function updateTerrainImage(
+    terrain
+) {
+
+    const terrainName =
+        String(
+            terrain || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    let imageURL = "";
+
+
+    /*
+     * HORY
+     */
+
+    if (
+        terrainName === "hory" ||
+        terrainName === "hora" ||
+        terrainName === "mountains"
+    ) {
+
+        imageURL =
+            "https://vic3.paradoxwikis.com/images/9/9d/State_picture_mountains.png";
+
+    }
+
+
+    /*
+     * ROVINA
+     */
+
+    else if (
+        terrainName === "rovina" ||
+        terrainName === "roviny" ||
+        terrainName === "plane" ||
+        terrainName === "plains"
+    ) {
+
+        imageURL =
+            "https://vic3.paradoxwikis.com/images/0/0a/State_picture_plains.png";
+
+    }
+
+
+    /*
+     * LES
+     */
+
+    else if (
+        terrainName === "les" ||
+        terrainName === "lesy" ||
+        terrainName === "forest" ||
+        terrainName === "forests"
+    ) {
+
+        imageURL =
+            "https://vic3.paradoxwikis.com/images/1/1f/State_picture_forest.png";
+
+    }
+
+
+    /*
+     * BAŽINA
+     */
+
+    else if (
+        terrainName === "bazina" ||
+        terrainName === "baziny" ||
+        terrainName === "bažina" ||
+        terrainName === "bažiny" ||
+        terrainName === "wetland" ||
+        terrainName === "wetlands"
+    ) {
+
+        imageURL =
+            "https://vic3.paradoxwikis.com/images/5/50/State_picture_wetland.png";
+
+    }
+
+
+    /*
+     * ZOBRAZENÍ
+     */
+
+    if (imageURL) {
+
+        terrainImage.src =
+            imageURL;
+
+        terrainImage.style.display =
+            "block";
+
+    }
+
+    else {
+
+        terrainImage.src = "";
+
+        terrainImage.style.display =
+            "none";
+
+    }
+
 }
 
 
@@ -458,14 +574,29 @@ function showStatistics(
         name;
 
 
+    /*
+     * Pokud statistiky neexistují
+     */
+
     if (!stats) {
 
         clearStatistics();
+
+        updateTerrainImage("");
 
         return;
 
     }
 
+
+    /* TERÉN */
+
+    updateTerrainImage(
+        stats.terrain
+    );
+
+
+    /* PRODUKCE */
 
     document.getElementById(
         "obili"
@@ -491,6 +622,8 @@ function showStatistics(
         stats.tkanina ?? 0;
 
 
+    /* MĚSTO */
+
     document.getElementById(
         "mesto"
     ).textContent =
@@ -500,6 +633,8 @@ function showStatistics(
             : "Ne";
 
 
+    /* TERÉN */
+
     document.getElementById(
         "terrain"
     ).textContent =
@@ -507,6 +642,8 @@ function showStatistics(
         stats.terrain ||
         "-";
 
+
+    /* VLASTNÍK */
 
     document.getElementById(
         "vlastnik"
@@ -516,9 +653,9 @@ function showStatistics(
         "-";
 
 
-    /*
-     * building_slots je JSONB
-     */
+    /* =====================================
+       BUILDING SLOTS
+    ===================================== */
 
     let buildings =
         stats.building_slots;
@@ -536,6 +673,7 @@ function showStatistics(
                 );
 
         }
+
         catch {
 
             buildings = [];
@@ -618,7 +756,7 @@ function clearStatistics() {
 
 
 /* =========================================
-   KLIK MIMO
+   KLIK MIMO PROVINCIE
 ========================================= */
 
 mapArea.addEventListener(
@@ -657,7 +795,34 @@ mapArea.addEventListener(
 
             clearStatistics();
 
+
+            updateTerrainImage("");
+
+
+            panel.classList.remove(
+                "open"
+            );
+
         }
+
+    }
+);
+
+
+/* =========================================
+   ZAVŘENÍ PANELU
+========================================= */
+
+closePanel.addEventListener(
+    "click",
+    function(event) {
+
+        event.stopPropagation();
+
+
+        panel.classList.remove(
+            "open"
+        );
 
     }
 );
@@ -816,6 +981,7 @@ window.addEventListener(
     function() {
 
         dragging = false;
+
 
         mapArea.classList.remove(
             "dragging"

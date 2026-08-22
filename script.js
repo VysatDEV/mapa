@@ -24,6 +24,8 @@ let provinces = [];
 
 let statistics = {};
 
+let owners = {};
+
 let selectedProvince = null;
 
 
@@ -54,6 +56,9 @@ const closePanel =
 
 const terrainImage =
     document.getElementById("terrainImage");
+
+const ownerFlag =
+    document.getElementById("ownerFlag");
 
 
 /* =========================================
@@ -93,24 +98,12 @@ async function loadProvinces() {
 
     if (error) {
 
-        console.error(
-            "Chyba při načítání provincií:",
-            error
-        );
-
         throw error;
 
     }
 
 
-    provinces =
-        data || [];
-
-
-    console.log(
-        "Načtené provincie:",
-        provinces
-    );
+    provinces = data || [];
 
 }
 
@@ -131,11 +124,6 @@ async function loadStatistics() {
 
     if (error) {
 
-        console.error(
-            "Chyba při načítání statistik:",
-            error
-        );
-
         throw error;
 
     }
@@ -154,17 +142,64 @@ async function loadStatistics() {
         }
     );
 
+}
 
-    console.log(
-        "Načtené statistiky:",
-        statistics
-    );
+
+/* =========================================
+   NAČTENÍ VLASTNÍKŮ
+========================================= */
+
+async function loadOwners() {
+
+    try {
+
+        const response =
+            await fetch("owners.json");
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Nepodařilo se načíst owners.json"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        owners = {};
+
+
+        data.forEach(
+            function(owner) {
+
+                owners[
+                    String(owner.name)
+                ] = owner;
+
+            }
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Chyba při načítání owners.json:",
+            error
+        );
+
+    }
 
 }
 
 
 /* =========================================
-   NAČTENÍ DAT
+   NAČTENÍ VŠECH DAT
 ========================================= */
 
 async function loadData() {
@@ -172,12 +207,14 @@ async function loadData() {
     try {
 
         status.textContent =
-            "Načítám data ze Supabase...";
+            "Načítám data...";
 
 
         await loadProvinces();
 
         await loadStatistics();
+
+        await loadOwners();
 
 
         status.textContent =
@@ -199,7 +236,7 @@ async function loadData() {
 
 
         status.textContent =
-            "Chyba při načítání databáze";
+            "Chyba při načítání dat";
 
     }
 
@@ -207,7 +244,7 @@ async function loadData() {
 
 
 /* =========================================
-   NAČTENÍ MAPY
+   MAPA NAČTENA
 ========================================= */
 
 map.addEventListener(
@@ -275,19 +312,46 @@ function centerMap() {
 
 
 /* =========================================
-   TRANSFORMACE
+   TRANSFORMACE MAPY
 ========================================= */
 
 function updateTransform() {
 
     mapContainer.style.transform =
-        `
-        translate(
-            ${offsetX}px,
-            ${offsetY}px
-        )
-        scale(${scale})
-        `;
+        `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+
+}
+
+
+/* =========================================
+   STŘED PROVINCIE
+========================================= */
+
+function getProvinceCenter(points) {
+
+    let x = 0;
+
+    let y = 0;
+
+
+    points.forEach(
+        function(point) {
+
+            x += Number(point.x);
+
+            y += Number(point.y);
+
+        }
+    );
+
+
+    return {
+
+        x: x / points.length,
+
+        y: y / points.length
+
+    };
 
 }
 
@@ -349,17 +413,44 @@ function drawProvinces() {
             );
 
 
+            /* STATISTIKY PROVINCIE */
+
+            const provinceStats =
+                statistics[
+                    String(province.name)
+                ];
+
+
+            /* VLASTNÍK */
+
+            const ownerName =
+                provinceStats?.vlastnik;
+
+
+            const owner =
+                owners[
+                    String(ownerName || "")
+                ];
+
+
+            /* BARVA PROVINCIE */
+
             polygon.setAttribute(
                 "fill",
 
+                owner?.color ||
+
                 province.color ||
+
                 "#888888"
             );
 
 
             polygon.style.fillOpacity =
-                0.5;
+                0.55;
 
+
+            /* KLIK */
 
             polygon.addEventListener(
                 "click",
@@ -380,6 +471,73 @@ function drawProvinces() {
             svg.appendChild(
                 polygon
             );
+
+
+            /* =================================
+               IKONA MĚSTA
+            ================================= */
+
+            if (
+                provinceStats?.mesto === true
+            ) {
+
+                const center =
+                    getProvinceCenter(
+                        province.points
+                    );
+
+
+                const cityIcon =
+                    document.createElementNS(
+                        "http://www.w3.org/2000/svg",
+                        "image"
+                    );
+
+
+                cityIcon.setAttribute(
+                    "href",
+                    "city.png"
+                );
+
+
+                cityIcon.setAttribute(
+                    "x",
+                    center.x - 15
+                );
+
+
+                cityIcon.setAttribute(
+                    "y",
+                    center.y - 15
+                );
+
+
+                cityIcon.setAttribute(
+                    "width",
+                    30
+                );
+
+
+                cityIcon.setAttribute(
+                    "height",
+                    30
+                );
+
+
+                cityIcon.classList.add(
+                    "city-icon"
+                );
+
+
+                cityIcon.style.pointerEvents =
+                    "none";
+
+
+                svg.appendChild(
+                    cityIcon
+                );
+
+            }
 
         }
     );
@@ -420,6 +578,13 @@ function selectProvince(
     );
 
 
+    /* VYBRANÁ PROVINCIE NA VRCH */
+
+    svg.appendChild(
+        polygon
+    );
+
+
     showStatistics(
         province
     );
@@ -436,9 +601,7 @@ function selectProvince(
    OBRÁZEK TERÉNU
 ========================================= */
 
-function updateTerrainImage(
-    terrain
-) {
+function updateTerrainImage(terrain) {
 
     const terrainName =
         String(
@@ -451,10 +614,6 @@ function updateTerrainImage(
     let imageURL = "";
 
 
-    /*
-     * HORY
-     */
-
     if (
         terrainName === "hory" ||
         terrainName === "hora" ||
@@ -466,10 +625,6 @@ function updateTerrainImage(
 
     }
 
-
-    /*
-     * ROVINA
-     */
 
     else if (
         terrainName === "rovina" ||
@@ -484,15 +639,10 @@ function updateTerrainImage(
     }
 
 
-    /*
-     * LES
-     */
-
     else if (
         terrainName === "les" ||
         terrainName === "lesy" ||
-        terrainName === "forest" ||
-        terrainName === "forests"
+        terrainName === "forest"
     ) {
 
         imageURL =
@@ -501,17 +651,12 @@ function updateTerrainImage(
     }
 
 
-    /*
-     * BAŽINA
-     */
-
     else if (
         terrainName === "bazina" ||
         terrainName === "baziny" ||
         terrainName === "bažina" ||
         terrainName === "bažiny" ||
-        terrainName === "wetland" ||
-        terrainName === "wetlands"
+        terrainName === "wetland"
     ) {
 
         imageURL =
@@ -519,10 +664,6 @@ function updateTerrainImage(
 
     }
 
-
-    /*
-     * ZOBRAZENÍ
-     */
 
     if (imageURL) {
 
@@ -536,7 +677,8 @@ function updateTerrainImage(
 
     else {
 
-        terrainImage.src = "";
+        terrainImage.src =
+            "";
 
         terrainImage.style.display =
             "none";
@@ -550,14 +692,10 @@ function updateTerrainImage(
    ZOBRAZENÍ STATISTIK
 ========================================= */
 
-function showStatistics(
-    province
-) {
+function showStatistics(province) {
 
     const name =
-        String(
-            province.name
-        );
+        String(province.name);
 
 
     const stats =
@@ -574,15 +712,16 @@ function showStatistics(
         name;
 
 
-    /*
-     * Pokud statistiky neexistují
-     */
-
     if (!stats) {
 
         clearStatistics();
 
         updateTerrainImage("");
+
+        ownerFlag.src = "";
+
+        ownerFlag.style.display =
+            "none";
 
         return;
 
@@ -594,6 +733,40 @@ function showStatistics(
     updateTerrainImage(
         stats.terrain
     );
+
+
+    /* VLAJKA */
+
+    const owner =
+        owners[
+            String(
+                stats.vlastnik || ""
+            )
+        ];
+
+
+    if (
+        owner &&
+        owner.flag
+    ) {
+
+        ownerFlag.src =
+            owner.flag;
+
+        ownerFlag.style.display =
+            "block";
+
+    }
+
+    else {
+
+        ownerFlag.src =
+            "";
+
+        ownerFlag.style.display =
+            "none";
+
+    }
 
 
     /* PRODUKCE */
@@ -627,7 +800,6 @@ function showStatistics(
     document.getElementById(
         "mesto"
     ).textContent =
-
         stats.mesto
             ? "Ano"
             : "Ne";
@@ -638,9 +810,7 @@ function showStatistics(
     document.getElementById(
         "terrain"
     ).textContent =
-
-        stats.terrain ||
-        "-";
+        stats.terrain || "-";
 
 
     /* VLASTNÍK */
@@ -648,14 +818,10 @@ function showStatistics(
     document.getElementById(
         "vlastnik"
     ).textContent =
-
-        stats.vlastnik ||
-        "-";
+        stats.vlastnik || "-";
 
 
-    /* =====================================
-       BUILDING SLOTS
-    ===================================== */
+    /* BUDOVY */
 
     let buildings =
         stats.building_slots;
@@ -668,9 +834,7 @@ function showStatistics(
         try {
 
             buildings =
-                JSON.parse(
-                    buildings
-                );
+                JSON.parse(buildings);
 
         }
 
@@ -756,7 +920,7 @@ function clearStatistics() {
 
 
 /* =========================================
-   KLIK MIMO PROVINCIE
+   KLIK MIMO MAPU
 ========================================= */
 
 mapArea.addEventListener(
@@ -787,18 +951,6 @@ mapArea.addEventListener(
                 );
 
 
-            document.getElementById(
-                "provinceName"
-            ).textContent =
-                "Vyber provincii";
-
-
-            clearStatistics();
-
-
-            updateTerrainImage("");
-
-
             panel.classList.remove(
                 "open"
             );
@@ -810,7 +962,7 @@ mapArea.addEventListener(
 
 
 /* =========================================
-   ZAVŘENÍ PANELU
+   ZAVŘÍT PANEL
 ========================================= */
 
 closePanel.addEventListener(
@@ -818,7 +970,6 @@ closePanel.addEventListener(
     function(event) {
 
         event.stopPropagation();
-
 
         panel.classList.remove(
             "open"
@@ -841,7 +992,6 @@ mapArea.addEventListener(
 
         const mouseX =
             event.clientX;
-
 
         const mouseY =
             event.clientY;
@@ -901,7 +1051,7 @@ mapArea.addEventListener(
 
 
 /* =========================================
-   PAN
+   POSOUVÁNÍ MAPY
 ========================================= */
 
 mapArea.addEventListener(
@@ -923,7 +1073,8 @@ mapArea.addEventListener(
             return;
 
 
-        dragging = true;
+        dragging =
+            true;
 
 
         dragStartX =
@@ -980,7 +1131,8 @@ window.addEventListener(
     "mouseup",
     function() {
 
-        dragging = false;
+        dragging =
+            false;
 
 
         mapArea.classList.remove(

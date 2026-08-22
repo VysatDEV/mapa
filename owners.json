@@ -1,0 +1,17 @@
+[
+    {
+        "name": "stock",
+        "color": "darkblue",
+        "flag": "https://media.discordapp.net/attachments/1196891043480731698/1212143636654071818/fahesstock.png?ex=6a8a0f3b&is=6a88bdbb&hm=28924995278372d5f4bc43a503c14842a86225be6536cbe8aab85a3a68bf42d0&=&format=webp&quality=lossless"
+    },
+    {
+        "name": "Německo",
+        "color": "#333333",
+        "flag": "flags/germany.png"
+    },
+    {
+        "name": "Rakousko",
+        "color": "#ED2939",
+        "flag": "flags/austria.png"
+    }
+]

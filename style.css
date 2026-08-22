@@ -1,7 +1,3 @@
-/* =========================================
-   ZÁKLAD
-========================================= */
-
 * {
     box-sizing: border-box;
 }
@@ -26,9 +22,7 @@ body {
 }
 
 
-/* =========================================
-   MAPA
-========================================= */
+/* MAPA */
 
 #mapArea {
 
@@ -90,9 +84,7 @@ body {
 }
 
 
-/* =========================================
-   PROVINCE
-========================================= */
+/* PROVINCIE */
 
 .province {
 
@@ -118,9 +110,18 @@ body {
 }
 
 
-/* =========================================
-   POSTRANNÍ PANEL
-========================================= */
+/* IKONA MĚSTA */
+
+.city-icon {
+
+    pointer-events: none;
+
+    user-select: none;
+
+}
+
+
+/* POSTRANNÍ PANEL */
 
 #panel {
 
@@ -144,8 +145,7 @@ body {
 
     transform: translateX(100%);
 
-    transition:
-        transform 0.25s ease;
+    transition: transform 0.25s ease;
 
 }
 
@@ -157,9 +157,7 @@ body {
 }
 
 
-/* =========================================
-   ZAVÍRACÍ TLAČÍTKO
-========================================= */
+/* ZAVŘÍT PANEL */
 
 #closePanel {
 
@@ -193,9 +191,7 @@ body {
 }
 
 
-/* =========================================
-   NÁZEV PROVINCIE
-========================================= */
+/* NÁZEV PROVINCIE */
 
 #provinceName {
 
@@ -210,11 +206,11 @@ body {
 }
 
 
-/* =========================================
-   OBRÁZEK TERÉNU
-========================================= */
+/* OBRÁZEK TERÉNU */
 
 #terrainImageContainer {
+
+    position: relative;
 
     width: 100%;
 
@@ -242,9 +238,32 @@ body {
 }
 
 
-/* =========================================
-   STATISTIKY
-========================================= */
+/* VLAJKA VLASTNÍKA */
+
+#ownerFlag {
+
+    display: none;
+
+    position: absolute;
+
+    top: 8px;
+
+    right: 8px;
+
+    width: 90px;
+
+    max-height: 60px;
+
+    object-fit: cover;
+
+    border: 2px solid white;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+
+}
+
+
+/* STATISTIKY */
 
 .stat {
 
@@ -277,9 +296,7 @@ body {
 }
 
 
-/* =========================================
-   BUDOVY
-========================================= */
+/* BUDOVY */
 
 #panel h3 {
 
@@ -319,9 +336,7 @@ body {
 }
 
 
-/* =========================================
-   STATUS
-========================================= */
+/* STATUS */
 
 #status {
 

@@ -17,14 +17,38 @@ const supabaseClient =
 
 
 /* =========================================
+   VLASTNÍCI
+
+   SEM SI DOPLŇ SVÉ STÁTY
+========================================= */
+
+const owners = {
+
+    "stock": {
+        color: "#000c7c",
+        flag: "https://media.discordapp.net/attachments/1196891043480731698/1212143636654071818/fahesstock.png?ex=6a8ab7fb&is=6a89667b&hm=f0da13e5c7616304777c1905ea30d8eaeca87367d5d71668080ea3631ac7ddfa&=&format=webp&quality=lossless"
+    },
+
+    "Německo": {
+        color: "#444444",
+        flag: "flags/germany.png"
+    },
+
+    "Rakousko": {
+        color: "#ed2939",
+        flag: "flags/austria.png"
+    }
+
+};
+
+
+/* =========================================
    DATA
 ========================================= */
 
 let provinces = [];
 
 let statistics = {};
-
-let owners = {};
 
 let selectedProvince = null;
 
@@ -62,7 +86,7 @@ const ownerFlag =
 
 
 /* =========================================
-   ZOOM / PAN
+   ZOOM / POSUN
 ========================================= */
 
 let scale = 1;
@@ -103,7 +127,8 @@ async function loadProvinces() {
     }
 
 
-    provinces = data || [];
+    provinces =
+        data || [];
 
 }
 
@@ -146,60 +171,7 @@ async function loadStatistics() {
 
 
 /* =========================================
-   NAČTENÍ VLASTNÍKŮ
-========================================= */
-
-async function loadOwners() {
-
-    try {
-
-        const response =
-            await fetch("owners.json");
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Nepodařilo se načíst owners.json"
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        owners = {};
-
-
-        data.forEach(
-            function(owner) {
-
-                owners[
-                    String(owner.name)
-                ] = owner;
-
-            }
-        );
-
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Chyba při načítání owners.json:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =========================================
-   NAČTENÍ VŠECH DAT
+   NAČTENÍ DAT
 ========================================= */
 
 async function loadData() {
@@ -207,14 +179,17 @@ async function loadData() {
     try {
 
         status.textContent =
-            "Načítám data...";
+            "Načítám provincie...";
 
 
         await loadProvinces();
 
-        await loadStatistics();
 
-        await loadOwners();
+        status.textContent =
+            "Načítám statistiky...";
+
+
+        await loadStatistics();
 
 
         status.textContent =
@@ -285,8 +260,11 @@ map.addEventListener(
 
 function centerMap() {
 
-    if (!map.naturalWidth)
+    if (!map.naturalWidth) {
+
         return;
+
+    }
 
 
     scale = 1;
@@ -312,7 +290,7 @@ function centerMap() {
 
 
 /* =========================================
-   TRANSFORMACE MAPY
+   TRANSFORMACE
 ========================================= */
 
 function updateTransform() {
@@ -362,8 +340,11 @@ function getProvinceCenter(points) {
 
 function drawProvinces() {
 
-    if (!map.naturalWidth)
+    if (!map.naturalWidth) {
+
         return;
+
+    }
 
 
     svg.innerHTML = "";
@@ -413,7 +394,7 @@ function drawProvinces() {
             );
 
 
-            /* STATISTIKY PROVINCIE */
+            /* STATISTIKY */
 
             const provinceStats =
                 statistics[
@@ -433,7 +414,7 @@ function drawProvinces() {
                 ];
 
 
-            /* BARVA PROVINCIE */
+            /* BARVA */
 
             polygon.setAttribute(
                 "fill",
@@ -473,9 +454,9 @@ function drawProvinces() {
             );
 
 
-            /* =================================
+            /* =====================================
                IKONA MĚSTA
-            ================================= */
+            ===================================== */
 
             if (
                 provinceStats?.mesto === true
@@ -625,7 +606,6 @@ function updateTerrainImage(terrain) {
 
     }
 
-
     else if (
         terrainName === "rovina" ||
         terrainName === "roviny" ||
@@ -638,7 +618,6 @@ function updateTerrainImage(terrain) {
 
     }
 
-
     else if (
         terrainName === "les" ||
         terrainName === "lesy" ||
@@ -649,7 +628,6 @@ function updateTerrainImage(terrain) {
             "https://vic3.paradoxwikis.com/images/1/1f/State_picture_forest.png";
 
     }
-
 
     else if (
         terrainName === "bazina" ||
@@ -718,8 +696,6 @@ function showStatistics(province) {
 
         updateTerrainImage("");
 
-        ownerFlag.src = "";
-
         ownerFlag.style.display =
             "none";
 
@@ -727,8 +703,6 @@ function showStatistics(province) {
 
     }
 
-
-    /* TERÉN */
 
     updateTerrainImage(
         stats.terrain
@@ -920,7 +894,7 @@ function clearStatistics() {
 
 
 /* =========================================
-   KLIK MIMO MAPU
+   KLIK MIMO PROVINCII
 ========================================= */
 
 mapArea.addEventListener(
@@ -1060,8 +1034,11 @@ mapArea.addEventListener(
 
         if (
             event.button !== 0
-        )
+        ) {
+
             return;
+
+        }
 
 
         if (
@@ -1069,8 +1046,11 @@ mapArea.addEventListener(
             event.target.classList.contains(
                 "province"
             )
-        )
+        ) {
+
             return;
+
+        }
 
 
         dragging =
@@ -1080,14 +1060,12 @@ mapArea.addEventListener(
         dragStartX =
             event.clientX;
 
-
         dragStartY =
             event.clientY;
 
 
         startOffsetX =
             offsetX;
-
 
         startOffsetY =
             offsetY;
@@ -1105,8 +1083,11 @@ window.addEventListener(
     "mousemove",
     function(event) {
 
-        if (!dragging)
+        if (!dragging) {
+
             return;
+
+        }
 
 
         offsetX =
